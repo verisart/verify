@@ -1,0 +1,8 @@
+tests/other/*
+.idea/
+verisart_verify.egg-info
+venv/
+dist/
+build/
+.DS_Store
+__pycache__

@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+import sys
+
+from verisartverify.verify import verify_path
+
+
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: verify.py <file>")
+        sys.exit(1)
+    file = sys.argv[1]
+
+    if verify_path(file):
+        sys.exit(2)
+
+
+if __name__ == '__main__':
+    main()
