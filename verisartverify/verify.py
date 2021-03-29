@@ -108,7 +108,8 @@ class Version:
         self.successes = []
         self.infos = []
         self.legacy_version = None
-        self.private_signatures = set()
+        self.owner_key = None
+        self.transferrer_key = None
         self.files_in_manifest = set()
 
     def process_version(self, legacy_version):
@@ -240,12 +241,18 @@ class Version:
 
     def check_owner_signature(self):
         entry = self._get_private_entry('ownerKey')
-        if not self._check_private_signature(entry, self.files_in_manifest, 'Owner'):
+        public_key = self._check_private_signature(entry, self.files_in_manifest, 'Owner')
+
+        if public_key:
+            self.owner_key = public_key
+        else:
             self._info(f'Owner key information not present')
 
     def check_transferrer_signature(self):
         entry = self._get_private_entry('transferrerKey')
-        self._check_private_signature(entry, self.files_in_manifest, 'Transferrer')
+        public_key = self._check_private_signature(entry, self.files_in_manifest, 'Transferrer')
+        if public_key:
+            self.transferrer_key = public_key
 
     def check_public_files(self):
         self._process_files(self.metadata_json['publicFiles'])
@@ -276,11 +283,17 @@ class Version:
                 # Legacy versions are not included in anonymous archives
                 return
 
-            _, valid_public_keys, _, _ = self.legacy_version
+            _, legacy_public_keys, _, _ = self.legacy_version
+            legacy_public_keys = set(legacy_public_keys)
 
-            for legacy_pk in valid_public_keys:
-                if legacy_pk not in self.private_signatures:
-                    raise VerifyException(f'Failed to find matching public key {legacy_pk} in legacy zip in archive')
+            if self.owner_key:
+                if self.owner_key not in legacy_public_keys:
+                    raise VerifyException(f'Failed to find owner public key {self.owner_key} in legacy archive')
+
+            if self.transferrer_key:
+                if self.transferrer_key not in legacy_public_keys:
+                    # Transferrer key may not be present in legacy archives
+                    self._warning(f"Couldn't find transferrer key {self.transferrer_key} in legacy archive")
 
     def fetch_legacy_versions(self):
         """
@@ -329,8 +342,7 @@ class Version:
             self._info(f'Verify independently if {debug_type} key {public_key} matches the expected owner')
 
             self.checked_version_files.add(signature_file)
-            self.private_signatures.add(public_key)
-            return True
+            return public_key
 
     def _process_files(self, files_json: list[dict]):
         for public_file in files_json:

@@ -1,4 +1,4 @@
-tests/other/*
+tests/test-archives-external/*
 .idea/
 verisart_verify.egg-info
 venv/

@@ -11,7 +11,7 @@ README = (HERE / "README.md").read_text()
 setup(
     name='verisart-verify',
     packages=find_packages(include=['verisartverify']),
-    version='0.1.0',
+    version='0.1.1',
     description='Verisart Certificate Verification CLI',
     long_description=README,
     long_description_content_type="text/markdown",

@@ -21,6 +21,22 @@ class TestVerify(unittest.TestCase):
                 for warn in warnings:
                     self.assertIn('Open Timestamp not yet added to Bitcoin blockchain', warn)
 
+    def test_external_valid_certs(self):
+        """
+        Add extra certificates for testing that you don't want to be added to the repo to the `./test-archives-external'
+        dir
+        """
+        for f in Path('test-archives-external').iterdir():
+            print('------------------------------------------')
+            print(f'Testing {f}')
+
+            warnings = verify_path(f)
+            if 'no-ots' not in f.name:
+                self.assertEqual([], warnings)
+            else:
+                for warn in warnings:
+                    self.assertIn('Open Timestamp not yet added to Bitcoin blockchain', warn)
+
     def test_wrong_ots_file(self):
         with self.assertRaises(VerifyException) as cm:
             verify_path(failed_dir.joinpath('mismatch-ots.zip'))
