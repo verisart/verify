@@ -10,7 +10,7 @@ Further reading:
 
 ## Requires
 
- - [Python 3](https://www.python.org/downloads/)
+ - [Python 3.9+](https://www.python.org/downloads/)
  - [Java 1.7+](https://www.java.com)
 
 ## Installation
